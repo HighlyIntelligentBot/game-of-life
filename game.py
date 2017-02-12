@@ -1,5 +1,6 @@
 import tkinter as tk
 from time import time, sleep
+import sys
 
 
 class App:
@@ -9,7 +10,7 @@ class App:
             height (int): display height
             size (int): size of the cells
     """
-    def __init__(self, width, height, size):
+    def __init__(self, width=800, height=800, size=50):
         self.screen_width = width
         self.screen_height = height
         self._running = True
@@ -142,7 +143,10 @@ class Cell(App):
 
 
 def main():
-    app = App(1000, 1000, 50)
+    try:
+        app = App(int(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3]))
+    except IndexError:
+        app = App()
     app.initialize()
     app.mainloop()
 
