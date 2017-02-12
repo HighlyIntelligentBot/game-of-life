@@ -56,13 +56,11 @@ class App:
 
         # For now, this is the place to choose which cells should be alive from
         # the start.
-        self.board[(4, 4)].alive = True
-        self.board[(3, 4)].alive = True
-        self.board[(5, 4)].alive = True
-
-        self.board[(7, 9)].alive = True
-        self.board[(8, 9)].alive = True
-        self.board[(9, 9)].alive = True
+        self.board[(2, 0)].alive = True
+        self.board[(2, 1)].alive = True
+        self.board[(2, 2)].alive = True
+        self.board[(1, 2)].alive = True
+        self.board[(0, 1)].alive = True
 
     def nextgen(self):
         """Calculate the next generation of cells by updating each cell.
