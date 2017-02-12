@@ -14,15 +14,18 @@ class App:
         self.screen_width = width
         self.screen_height = height
         self._running = True
+        self._paused = False
         self.cellsize = size
 
     def initialize(self):
         global root
         root = tk.Tk()
 
-        # bind Esc and the little red cross to close the Application
+        # binding keys
         root.bind('<Escape>', self.close)
         root.protocol('WM_DELETE_WINDOW', self.close)
+        root.bind('<space>', self.pause)
+        root.bind('<Button-1>', self.click)
 
         self.cv = tk.Canvas(root, height=self.screen_height,
                             width=self.screen_width, background='black')
@@ -61,7 +64,7 @@ class App:
     def nextgen(self):
         """Calculate the next generation of cells by updating each cell.
         """
-        sleep(0.3)
+        sleep(0.2)
         livingcells = [i for i in self.board.keys() if self.board[i].alive]
         for i in self.board.keys():
             self.board[i].update(livingcells)
@@ -70,10 +73,32 @@ class App:
         """Application Mainloop
         """
         while self._running:
-            self.nextgen()
+            if not self._paused:
+                self.nextgen()
             self.cv.update()
 
+    def click(self, event):
+        """Make a clicked Cell alive if it's dead and vice versa
+        """
+        col = event.x // self.cellsize
+        row = event.y // self.cellsize
+        if not self.board[(row, col)].alive:
+            self.board[(row, col)].alive = True
+            self.cv.itemconfig(self.board[(row, col)].cid, fill='white')
+        else:
+            self.board[(row, col)].alive = False
+
+    def pause(self, *ignore):
+        """Pause when the spacebar is pressed
+        """
+        if not self._paused:
+            self._paused = True
+        else:
+            self._paused = False
+
     def close(self, *ignore):
+        """Close Application
+        """
         self._running = False
         root.destroy()
 
@@ -153,5 +178,4 @@ if __name__ == '__main__':
     main()
 
 
-# TODO: *Make the board clickable
-#       *Implement third colour for cells that recently died
+# TODO: Implement third colour for cells that recently died
