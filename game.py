@@ -15,10 +15,6 @@ class App:
         self.screen_height = height
         self._running = True
         self.cellsize = size
-        # realized too late that width of a square = height.. Too lazy to
-        # change it now..
-        self.width = self.cellsize
-        self.height = self.cellsize
 
     def initialize(self):
         global root
@@ -36,8 +32,8 @@ class App:
     def init_board(self):
         """Constructs the game board.
         """
-        self.maxcols = self.screen_width // self.width
-        self.maxrows = self.screen_height // self.height
+        self.maxcols = self.screen_width // self.cellsize
+        self.maxrows = self.screen_height // self.cellsize
 
         # the cell ids are represented by tuples containing the coords in the
         # form of (x, y)
@@ -48,7 +44,7 @@ class App:
         # Generate the CellObjects as a grid
         for i in self.cellids:
             nrow, ncol = i
-            self.cells.append(Cell(self.cv, nrow, ncol))
+            self.cells.append(Cell(self.cv, nrow, ncol, self.cellsize))
 
         # Create the Cell instances in a dict that with
         # {<Cellid>: Cell(cv, row, col)}
@@ -89,7 +85,7 @@ class Cell(App):
         row (int): the row of the Cell
         column (int): the column of the Cell
     """
-    def __init__(self, cv, row, column):
+    def __init__(self, cv, row, column, size):
         super().__init__()
         self.cv = cv
 
@@ -100,6 +96,10 @@ class Cell(App):
         else:
             self.color = 'black'
 
+        # realized too late that width of a square = height.. Too lazy to
+        # change it now..
+        self.width = size
+        self.height = size
         self.row = row
         self.col = column
         self.x = column * self.width
