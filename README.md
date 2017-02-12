@@ -13,9 +13,11 @@ This runs the app with a resolution of 1000x1000 and a cell size of 50.
 
 The default values are 800x800 with a cell size of 50.
 
+The controls are:
+  Spacebar: Pauses the game
+  Left mouse Button: Turns the clicked cell alive if its dead and vice versa
+  Escape: Closes the game
+
 
 TODO: 
-
-   Make the Board clickable
-      
    Implement third colour for cells that recently died
