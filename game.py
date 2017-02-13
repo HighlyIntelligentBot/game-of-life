@@ -10,7 +10,7 @@ class App:
             height (int): display height
             size (int): size of the cells
     """
-    def __init__(self, width=800, height=800, size=50):
+    def __init__(self, width=1000, height=1000, size=20):
         self.screen_width = width
         self.screen_height = height
         self._running = True
@@ -20,12 +20,16 @@ class App:
     def initialize(self):
         global root
         root = tk.Tk()
+        root.wm_title("Game of Life")
 
         # binding keys
         root.bind('<Escape>', self.close)
         root.protocol('WM_DELETE_WINDOW', self.close)
+        root.bind('<c>', self.clear)
         root.bind('<space>', self.pause)
         root.bind('<Button-1>', self.click)
+        root.bind('<B1-Motion>', self.drag)
+        root.bind('<Shift-Button-1>', self.mk_glider)
 
         self.cv = tk.Canvas(root, height=self.screen_height,
                             width=self.screen_width, background='black')
@@ -53,21 +57,45 @@ class App:
         # {<Cellid>: Cell(cv, row, col)}
         self.board = dict(zip(self.cellids, self.cells))
 
-        # For now, this is the place to choose which cells should be alive from
-        # the start.
-        self.board[(2, 0)].alive = True
-        self.board[(2, 1)].alive = True
-        self.board[(2, 2)].alive = True
-        self.board[(1, 2)].alive = True
-        self.board[(0, 1)].alive = True
+        # Starting seed
+        midcol, midrow = self.maxcols // 2, self.maxrows // 2
+        seedpoints = [(midrow-1, midcol-3), (midrow-1, midcol-2),
+                      (midrow-1, midcol-1), (midrow, midcol-3),
+                      (midrow-1, midcol+3), (midrow-1, midcol+2),
+                      (midrow-1, midcol+1), (midrow, midcol+3),
+                      (midrow+1, midcol-3), (midrow+1, midcol-2),
+                      (midrow+1, midcol-1), (midrow+1, midcol-3),
+                      (midrow+1, midcol+3), (midrow+1, midcol+2),
+                      (midrow+1, midcol+1)]
+        for i in seedpoints:
+            self.board[i].alive = True
 
     def nextgen(self):
         """Calculate the next generation of cells by updating each cell.
         """
-        sleep(0.2)
         livingcells = [i for i in self.board.keys() if self.board[i].alive]
-        for i in self.board.keys():
-            self.board[i].update(livingcells)
+        if len(livingcells) < 200:
+            sleep(0.05)
+        print(len(livingcells))
+        for i in livingcells:
+            row, col = i
+            self.board[(row, col)].update(livingcells)
+            if col < self.maxcols:
+                self.board[(row, col+1)].update(livingcells)
+            if col > 0:
+                self.board[(row, col-1)].update(livingcells)
+            if row < self.maxrows:
+                self.board[(row+1, col)].update(livingcells)
+                if col > 0:
+                    self.board[(row+1, col-1)].update(livingcells)
+                if col < self.maxcols:
+                    self.board[(row+1, col+1)].update(livingcells)
+            if row > 0:
+                self.board[(row-1, col)].update(livingcells)
+                if col < self.maxcols:
+                    self.board[(row-1, col+1)].update(livingcells)
+                if col > 0:
+                    self.board[(row-1, col-1)].update(livingcells)
 
     def mainloop(self):
         """Application Mainloop
@@ -87,6 +115,28 @@ class App:
             self.cv.itemconfig(self.board[(row, col)].cid, fill='white')
         else:
             self.board[(row, col)].alive = False
+            self.cv.itemconfig(self.board[(row, col)].cid, fill='black')
+
+    def drag(self, event):
+        col = event.x // self.cellsize
+        row = event.y // self.cellsize
+        if not self.board[(row, col)].alive:
+            self.board[(row, col)].alive = True
+            self.cv.itemconfig(self.board[(row, col)].cid, fill='white')
+
+    def mk_glider(self, event):
+        """Make a glider at the clicked position
+        """
+        col = event.x // self.cellsize
+        row = event.y // self.cellsize
+        cells = [(row+1, col-1), (row+1, col), (row+1, col+1), (row, col+1),
+                 (row-1, col)]
+        for i in cells:
+            if not self.board[i].alive:
+                self.board[i].alive = True
+                self.cv.itemconfig(self.board[i].cid, fill='white')
+            else:
+                pass
 
     def pause(self, *ignore):
         """Pause when the spacebar is pressed
@@ -95,6 +145,14 @@ class App:
             self._paused = True
         else:
             self._paused = False
+
+    def clear(self, *ignore):
+        """Clear the board
+        """
+        livingcells = [i for i in self.board.keys() if self.board[i].alive]
+        for i in livingcells:
+            self.board[i].alive = False
+            self.cv.itemconfig(self.board[i].cid, fill='black')
 
     def close(self, *ignore):
         """Close Application
@@ -113,6 +171,7 @@ class Cell(App):
     def __init__(self, cv, row, column, size):
         super().__init__()
         self.cv = cv
+        self.ocolor = 'grey'
 
         self.alive = False
 
@@ -121,8 +180,6 @@ class Cell(App):
         else:
             self.color = 'black'
 
-        # realized too late that width of a square = height.. Too lazy to
-        # change it now..
         self.width = size
         self.height = size
         self.row = row
@@ -132,7 +189,8 @@ class Cell(App):
         self.corn = [self.x, self.y, self.x + self.width, self.y + self.height]
         self.cid = self.cv.create_rectangle(self.corn[0], self.corn[1],
                                             self.corn[2], self.corn[3],
-                                            fill=self.color, outline='white')
+                                            fill=self.color,
+                                            outline=self.ocolor)
 
         self.peers = [(row+1, column), (row-1, column),
                       (row, column+1), (row, column-1),
@@ -148,17 +206,15 @@ class Cell(App):
             Args:
                 lc (lst): A list of the living Cells on the board
         """
-        self.livinpeers = [n for n in self.peers if n in lc]
-        if not self.alive:
-            if len(self.livinpeers) == 3:
-                self.alive = True
-            else:
-                pass
+        livingpeers = [n for n in self.peers if n in lc]
+        if self.alive:
+            livingpeers.append((self.row, self.col))
+        if len(livingpeers) == 3:
+            self.alive = True
+        elif len(livingpeers) == 4:
+            pass
         else:
-            if len(self.livinpeers) < 2 or len(self.livinpeers) > 3:
-                self.alive = False
-            else:
-                pass
+            self.alive = False
         if self.alive:
             self.cv.itemconfig(self.cid, fill='white')
         else:
@@ -178,4 +234,6 @@ if __name__ == '__main__':
     main()
 
 
-# TODO: Implement third colour for cells that recently died
+# TODO: Fix the keyerror bug, that sometimes occurs
+#       Make the board wrap
+#       Record the living cells and graph them
