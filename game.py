@@ -10,7 +10,7 @@ class App:
             height (int): display height
             size (int): size of the cells
     """
-    def __init__(self, width=1000, height=1000, size=20):
+    def __init__(self, width=1000, height=1000, size=10):
         self.screen_width = width
         self.screen_height = height
         self._running = True
@@ -44,8 +44,8 @@ class App:
 
         # the cell ids are represented by tuples containing the coords in the
         # form of (x, y)
-        self.cellids = [(i, n) for i in range(self.maxrows)
-                        for n in range(self.maxcols)]
+        self.cellids = [(i, n) for i in range(self.maxrows+1)
+                        for n in range(self.maxcols+1)]
         self.cells = []
 
         # Generate the CellObjects as a grid
@@ -76,7 +76,6 @@ class App:
         livingcells = [i for i in self.board.keys() if self.board[i].alive]
         if len(livingcells) < 200:
             sleep(0.05)
-        print(len(livingcells))
         for i in livingcells:
             row, col = i
             self.board[(row, col)].update(livingcells)
