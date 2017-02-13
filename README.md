@@ -7,17 +7,21 @@ To launch, simply run game.py. You can use command line arguments to set the scr
 
 The first argument is the screen width, the second is the screen height and the third one is the cell size. Example:
 
-      ~$ game.py 1000 1000 50
+      ~$ game.py 1200 1200 10
 
-This runs the app with a resolution of 1000x1000 and a cell size of 50.
+This runs the app with a resolution of 1200x1200 and a cell size of 10.
 
-The default values are 800x800 with a cell size of 50.
+The default values are 1000x1000 with a cell size of 20.
 
 The controls are:
   Spacebar: Pauses the game
+  C: Clears the board
   Left mouse Button: Turns the clicked cell alive if its dead and vice versa
+  Shift+Left mouse: Spawn a glider
   Escape: Closes the game
 
 
 TODO: 
-   Implement third colour for cells that recently died
+   Fix the keyerror bug, that sometimes occurs
+   Make the board wrap
+   Record the living cells and graph them
