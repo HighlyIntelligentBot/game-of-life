@@ -7,11 +7,11 @@ To launch, simply run game.py. You can use command line arguments to set the scr
 
 The first argument is the screen width, the second is the screen height and the third one is the cell size. Example:
 
-      ~$ game.py 1200 1200 10
+      ~$ game.py 1200 1200 5
 
-This runs the app with a resolution of 1200x1200 and a cell size of 10.
+This runs the app with a resolution of 1200x1200 and a cell size of 5.
 
-The default values are 1000x1000 with a cell size of 20.
+The default values are 1000x1000 with a cell size of 10.
 
 The controls are:
   Spacebar: Pauses the game
