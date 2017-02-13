@@ -1,5 +1,5 @@
 import tkinter as tk
-from time import time, sleep
+from time import sleep
 import sys
 
 
